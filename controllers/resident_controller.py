@@ -4,9 +4,10 @@ from models.database import db, Establishment, Resident
 
 
 def index():
+    filter = request.args.get("filter", False)
     result = []
     try:
-        sql = """
+        sql = f"""
             SELECT
                 a.*,
                 b.*
@@ -16,6 +17,9 @@ def index():
                 establishment b
             ON
                 b.id = a.establishment_id"""
+                
+        if filter:
+            sql += f""" WHERE (a.first_name LIKE '%{filter}%' OR a.last_name LIKE '%{filter}%')"""
         residents = db.session.execute(text(sql)).all()
 
         for resident in residents:
