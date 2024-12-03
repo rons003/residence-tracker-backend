@@ -1,6 +1,8 @@
+import base64
+import time
 from flask import json, jsonify, make_response, request
 from sqlalchemy import text
-from models.database import db, Establishment, Resident
+from models.database import EstablishmentImage, db, Establishment, Resident
 
 
 def index():
@@ -9,6 +11,7 @@ def index():
     try:
         sql = f"""
             SELECT
+                a.id as resident_id,
                 a.*,
                 b.*
             FROM
@@ -17,14 +20,14 @@ def index():
                 establishment b
             ON
                 b.id = a.establishment_id"""
-                
+
         if filter:
             sql += f""" WHERE (a.first_name LIKE '%{filter}%' OR a.last_name LIKE '%{filter}%')"""
         residents = db.session.execute(text(sql)).all()
 
         for resident in residents:
             result.append({
-                "id": resident.id,
+                "id": resident.resident_id,
                 "establishment_id": resident.establishment_id,
                 "first_name": resident.first_name,
                 "middle_name": resident.middle_name,
@@ -53,6 +56,7 @@ def show(id):
     try:
         sql = """
             SELECT
+                a.id as resident_id,
                 a.*,
                 b.*
             FROM
@@ -68,7 +72,7 @@ def show(id):
             return make_response(
                 jsonify({'message': 'Invalid Resident ID'}), 400)
         result = {
-            "id": resident.id,
+            "id": resident.resident_id,
             "establishment_id": resident.establishment_id,
             "first_name": resident.first_name,
             "middle_name": resident.middle_name,
@@ -114,19 +118,33 @@ def create():
                 resident.occupation = row['occupation']
                 resident.present_address = row['present_address']
                 resident.age = row['age']
-                resident.sex = row['sex'],
+                resident.sex = row['gender'],
                 resident.nationality = row['nationality']
                 resident.civil_status = row['civil_status']
-                resident.birth_date = row['birth_date']
+                # resident.birth_date = row['birth_date']
                 resident.contact_no = row['contact_no']
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_adress = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
                 residents.append(resident)
             establishment.resident = residents
+            filesnames = []
+            for image in data['images']:
+                image = EstablishmentImage()
+                image.filename = time.strftime("%Y%m%d%H%M%S")+ ".jpg"
+                filesnames.append(image)
+            establishment.establishment_image = filesnames
 
             db.session.add(establishment)
             db.session.commit()
+
+            # for image in data['images']:
+            #     # with open("imageToSave.jpg", "wb") as fh:
+            #     #     fh.write(binary_img)
+            #     convert_and_save(image['base64'], image['name'])
+
+            #     # with open(image['name'], "wb") as fh:
+            #     #     fh.write(binary_img)
 
             return make_response(
                 jsonify({'status': 'success', 'message': 'Resident Added!'}), 201)
@@ -177,3 +195,9 @@ def update(id):
             print(str(e))
             db.session.rollback()
             return make_response(jsonify({'status': 'success', 'message': e}), 500)
+
+
+def convert_and_save(b64_string, name):
+    with open("test.png", "wb") as fh:
+        fh.write(base64.decodebytes(b64_string.encode('utf-8')))
+        
