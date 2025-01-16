@@ -14,7 +14,8 @@ def index():
                 "code": e.code,
                 "block": e.block,
                 "address": e.address,
-                "type": e.type
+                "type": e.type,
+                "no_of_resident": len(e.resident)
             })
         return result
     except Exception as e:
