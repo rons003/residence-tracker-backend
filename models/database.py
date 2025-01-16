@@ -13,6 +13,8 @@ class Establishment(db.Model):
         'Resident', backref='resident', lazy=True)
     establishment_image = db.relationship(
         'EstablishmentImage', backref='establishment_image', lazy=True)
+    coordinates = db.relationship(
+        'Coordinates', backref='coordinates', lazy=True)
 
 
 class Resident(db.Model):
