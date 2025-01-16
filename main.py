@@ -2,6 +2,7 @@ from flask import Flask, json
 from flask_cors import CORS
 from models.database import db
 from routes.resident_bp import resident_bp
+from routes.establishment_bp import establishment_bp
 
 # from routes.sap_bp import sap_bp
 from flask_jwt_extended import JWTManager
@@ -21,6 +22,7 @@ jwt = JWTManager(app)
 db.init_app(app)
 
 app.register_blueprint(resident_bp, url_prefix='/resident')
+app.register_blueprint(establishment_bp, url_prefix='/establishment')
 # with app.app_context():
 #     db.drop_all()
 #     db.create_all()
