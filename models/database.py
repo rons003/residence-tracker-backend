@@ -40,3 +40,11 @@ class EstablishmentImage(db.Model):
     establishment_id = db.Column(db.Integer, db.ForeignKey('establishment.id'),
                                  nullable=False)
     filename = db.Column(db.String(100))
+
+
+class Coordinates(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    establishment_id = db.Column(db.Integer, db.ForeignKey('establishment.id'),
+                                 nullable=False)
+    x = db.Column(db.Float(), nullable=False)
+    y = db.Column(db.Float(), nullable=False)
