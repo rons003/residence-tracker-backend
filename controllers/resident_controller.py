@@ -2,7 +2,7 @@ import base64
 import time
 from flask import json, jsonify, make_response, request
 from sqlalchemy import text
-from models.database import EstablishmentImage, db, Establishment, Resident
+from models.database import Coordinates, EstablishmentImage, db, Establishment, Resident
 
 
 def index():
@@ -24,8 +24,8 @@ def index():
         if filter:
             sql += f""" WHERE (a.first_name LIKE '%{filter}%' OR a.last_name LIKE '%{filter}%')"""
         residents = db.session.execute(text(sql)).all()
-
         for resident in residents:
+            coordinates = db.session.query(Coordinates).filter_by(establishment_id=resident.establishment_id).all()
             result.append({
                 "id": resident.resident_id,
                 "establishment_id": resident.establishment_id,
@@ -45,7 +45,8 @@ def index():
                 "code": resident.code,
                 "block": resident.block,
                 "address": resident.address,
-                "type": resident.type
+                "type": resident.type,
+                "coordinates": [{"x": c.x, "y": c.y} for c in coordinates]
             })
     except Exception as e:
         print(str(e))
