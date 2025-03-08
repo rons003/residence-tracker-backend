@@ -24,8 +24,15 @@ def index():
         if filter:
             sql += f""" WHERE (a.first_name LIKE '%{filter}%' OR a.last_name LIKE '%{filter}%')"""
         residents = db.session.execute(text(sql)).all()
+
         for resident in residents:
-            coordinates = db.session.query(Coordinates).filter_by(establishment_id=resident.establishment_id).all()
+            coordinates = db.session.query(Coordinates).filter_by(
+                establishment_id=resident.establishment_id).all()
+            establishment_image = db.session.query(EstablishmentImage).filter_by(
+                establishment_id=resident.establishment_id).first()
+            with open("image_attachments/" + establishment_image.filename, "rb") as image_file:
+                base64_string = base64.b64encode(image_file.read())
+                encoded_string = base64_string.decode('ascii')
             result.append({
                 "id": resident.resident_id,
                 "establishment_id": resident.establishment_id,
@@ -46,7 +53,8 @@ def index():
                 "block": resident.block,
                 "address": resident.address,
                 "type": resident.type,
-                "coordinates": [{"x": c.x, "y": c.y} for c in coordinates]
+                "coordinates": [{"x": c.x, "y": c.y} for c in coordinates],
+                "image": encoded_string
             })
     except Exception as e:
         print(str(e))
@@ -79,7 +87,12 @@ def show(id):
                 "emergency_name": resident.emergency_name,
                 "emergency_contact_no": resident.emergency_contact_no
             })
-        images = []
+
+        establishment_image = db.session.query(
+            EstablishmentImage).filter_by(establishment_id=id).first()
+        with open("image_attachments/" + establishment_image.filename, "rb") as image_file:
+            base64_string = base64.b64encode(image_file.read())
+            encoded_string = base64_string.decode('ascii')
         result = {
             "id": establishment.id,
             "code": establishment.code,
@@ -87,7 +100,7 @@ def show(id):
             "address": establishment.address,
             "type": establishment.type,
             "residents": residents,
-            "images": images
+            "image": encoded_string
         }
         return make_response(jsonify(result), 200)
     except Exception as e:
@@ -126,23 +139,15 @@ def create():
                 residents.append(resident)
             establishment.resident = residents
             filesnames = []
-            for image in data['images']:
+            for i in data['images']:
                 image = EstablishmentImage()
-                image.filename = time.strftime("%Y%m%d%H%M%S") + ".jpg"
+                image.filename = i['name']
                 filesnames.append(image)
+                convert_and_save(i['base64'], i['name'])
             establishment.establishment_image = filesnames
 
             db.session.add(establishment)
             db.session.commit()
-
-            # for image in data['images']:
-            #     # with open("imageToSave.jpg", "wb") as fh:
-            #     #     fh.write(binary_img)
-            #     convert_and_save(image['base64'], image['name'])
-
-            #     # with open(image['name'], "wb") as fh:
-            #     #     fh.write(binary_img)
-
             return make_response(
                 jsonify({'status': 'success', 'message': 'Resident Added!'}), 201)
         except Exception as e:
@@ -195,5 +200,5 @@ def update(id):
 
 
 def convert_and_save(b64_string, name):
-    with open("test.png", "wb") as fh:
-        fh.write(base64.decodebytes(b64_string.encode('utf-8')))
+    with open("image_attachments/" + name, "wb") as fh:
+        fh.write(base64.b64decode(b64_string))
