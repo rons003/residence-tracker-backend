@@ -10,11 +10,11 @@ class Establishment(db.Model):
     address = db.Column(db.String(200))
     type = db.Column(db.String(100))
     resident = db.relationship(
-        'Resident', backref='resident', lazy=True)
+        'Resident', backref='resident', lazy=True, cascade="all, delete-orphan")
     establishment_image = db.relationship(
-        'EstablishmentImage', backref='establishment_image', lazy=True)
+        'EstablishmentImage', backref='establishment_image', lazy=True, cascade="all, delete-orphan")
     coordinates = db.relationship(
-        'Coordinates', backref='coordinates', lazy=True)
+        'Coordinates', backref='coordinates', lazy=True, cascade="all, delete-orphan")
 
 
 class Resident(db.Model):
@@ -33,7 +33,7 @@ class Resident(db.Model):
     birth_date = db.Column(db.DateTime())
     contact_no = db.Column(db.String(15))
     emergency_name = db.Column(db.String(100))
-    emergency_adress = db.Column(db.String(100))
+    emergency_address = db.Column(db.String(100))
     emergency_contact_no = db.Column(db.String(15))
 
 

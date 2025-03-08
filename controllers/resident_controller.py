@@ -47,6 +47,7 @@ def index():
                 "civil_status": resident.civil_status,
                 "birth_date": resident.birth_date,
                 "contact_no": resident.contact_no,
+                "emergency_address": resident.emergency_address,
                 "emergency_name": resident.emergency_name,
                 "emergency_contact_no": resident.emergency_contact_no,
                 "code": resident.code,
@@ -84,6 +85,7 @@ def show(id):
                 "civil_status": resident.civil_status,
                 "birth_date": resident.birth_date,
                 "contact_no": resident.contact_no,
+                "emergency_address": resident.emergency_address,
                 "emergency_name": resident.emergency_name,
                 "emergency_contact_no": resident.emergency_contact_no
             })
@@ -170,7 +172,7 @@ def update(id):
             establishment.address = data['address']
             establishment.type = data['type']
             residents = []
-            rows = data['residents']
+            rows = data['residents']    
             for row in rows:
                 resident = Resident()
                 resident.first_name = row['first_name']
@@ -179,17 +181,23 @@ def update(id):
                 resident.occupation = row['occupation']
                 resident.present_address = row['present_address']
                 resident.age = row['age']
-                resident.sex = row['sex'],
+                resident.sex = row['gender'],
                 resident.nationality = row['nationality']
                 resident.civil_status = row['civil_status']
-                resident.birth_date = row['birth_date']
+                # resident.birth_date = row['birth_date']
                 resident.contact_no = row['contact_no']
                 resident.emergency_name = row['emergency_name']
-                resident.emergency_adress = row['emergency_address']
+                resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
                 residents.append(resident)
             establishment.resident = residents
-
+            filesnames = []
+            for i in data['images']:
+                image = EstablishmentImage()
+                image.filename = i['name']
+                filesnames.append(image)
+                convert_and_save(i['base64'], i['name'])
+            establishment.establishment_image = filesnames
             db.session.commit()
             return make_response(
                 jsonify({'status': 'success', 'message': 'Information Updated!'}), 200)
