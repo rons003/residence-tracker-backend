@@ -1,4 +1,5 @@
 import base64
+import datetime
 import time
 from flask import json, jsonify, make_response, request
 from sqlalchemy import text
@@ -45,7 +46,7 @@ def index():
                 "sex": resident.sex,
                 "nationality": resident.nationality,
                 "civil_status": resident.civil_status,
-                "birth_date": resident.birth_date,
+                "birth_date": resident.birth_date.strftime("%d-%m-%Y"),
                 "contact_no": resident.contact_no,
                 "emergency_address": resident.emergency_address,
                 "emergency_name": resident.emergency_name,
@@ -72,6 +73,7 @@ def show(id):
                 jsonify({'message': 'Invalid Establishment ID'}), 400)
         residents = []
         for resident in establishment.resident:
+            print()
             residents.append({
                 "id": resident.id,
                 "first_name": resident.first_name,
@@ -83,7 +85,7 @@ def show(id):
                 "gender": resident.sex,
                 "nationality": resident.nationality,
                 "civil_status": resident.civil_status,
-                "birth_date": resident.birth_date,
+                "birth_date": resident.birth_date.strftime("%d-%m-%Y"),
                 "contact_no": resident.contact_no,
                 "emergency_address": resident.emergency_address,
                 "emergency_name": resident.emergency_name,
@@ -122,7 +124,9 @@ def create():
             establishment.type = data['type']
             residents = []
             rows = data['residents']
+            
             for row in rows:
+                birth_date = datetime.datetime.strptime(row['birth_date'], "%d-%m-%Y").date()
                 resident = Resident()
                 resident.first_name = row['first_name']
                 resident.middle_name = row['middle_name']
@@ -133,7 +137,7 @@ def create():
                 resident.sex = row['gender'],
                 resident.nationality = row['nationality']
                 resident.civil_status = row['civil_status']
-                # resident.birth_date = row['birth_date']
+                resident.birth_date = birth_date
                 resident.contact_no = row['contact_no']
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_adress = row['emergency_address']
@@ -174,6 +178,7 @@ def update(id):
             residents = []
             rows = data['residents']    
             for row in rows:
+                birth_date = datetime.datetime.strptime(row['birth_date'], "%d-%m-%Y").date()
                 resident = Resident()
                 resident.first_name = row['first_name']
                 resident.middle_name = row['middle_name']
@@ -184,7 +189,7 @@ def update(id):
                 resident.sex = row['gender'],
                 resident.nationality = row['nationality']
                 resident.civil_status = row['civil_status']
-                # resident.birth_date = row['birth_date']
+                resident.birth_date = birth_date
                 resident.contact_no = row['contact_no']
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_address = row['emergency_address']
@@ -197,7 +202,8 @@ def update(id):
                 image.filename = i['name']
                 filesnames.append(image)
                 convert_and_save(i['base64'], i['name'])
-            establishment.establishment_image = filesnames
+            if len(filesnames) > 0:
+                establishment.establishment_image = filesnames
             db.session.commit()
             return make_response(
                 jsonify({'status': 'success', 'message': 'Information Updated!'}), 200)
