@@ -169,3 +169,4 @@ xml_backup/
 job.lock
 *.pdf
 config.py
+image_attachments/
