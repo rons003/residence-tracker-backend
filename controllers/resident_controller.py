@@ -31,9 +31,11 @@ def index():
                 establishment_id=resident.establishment_id).all()
             establishment_image = db.session.query(EstablishmentImage).filter_by(
                 establishment_id=resident.establishment_id).first()
-            with open("image_attachments/" + establishment_image.filename, "rb") as image_file:
-                base64_string = base64.b64encode(image_file.read())
-                encoded_string = base64_string.decode('ascii')
+            encoded_string = ''
+            if establishment_image:
+                with open("image_attachments/" + establishment_image.filename, "rb") as image_file:
+                    base64_string = base64.b64encode(image_file.read())
+                    encoded_string = base64_string.decode('ascii')
             result.append({
                 "id": resident.resident_id,
                 "establishment_id": resident.establishment_id,
@@ -93,9 +95,11 @@ def show(id):
 
         establishment_image = db.session.query(
             EstablishmentImage).filter_by(establishment_id=id).first()
-        with open("image_attachments/" + establishment_image.filename, "rb") as image_file:
-            base64_string = base64.b64encode(image_file.read())
-            encoded_string = base64_string.decode('ascii')
+        encoded_string = ''
+        if establishment_image:
+            with open("image_attachments/" + establishment_image.filename, "rb") as image_file:
+                base64_string = base64.b64encode(image_file.read())
+                encoded_string = base64_string.decode('ascii')
         result = {
             "id": establishment.id,
             "code": establishment.code,
