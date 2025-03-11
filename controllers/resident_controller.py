@@ -73,7 +73,6 @@ def show(id):
                 jsonify({'message': 'Invalid Establishment ID'}), 400)
         residents = []
         for resident in establishment.resident:
-            print()
             residents.append({
                 "id": resident.id,
                 "first_name": resident.first_name,
@@ -117,6 +116,30 @@ def create():
     if request.method == 'POST':
         try:
             data = request.get_json()
+            if data['code'] is None or data['code'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Code is required.'}), 200)
+                
+            if data['block'] is None or data['block'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Block is required.'}), 200)
+                
+            if data['address'] is None or data['address'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Address is required.'}), 200)
+                
+            if data['type'] is None or data['type'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Type is required.'}), 200)
+                
+            if data['residents'] is None or not data['residents']:
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'No Resident Info.'}), 200)
+            
+            exist = db.session.query(Establishment.code).filter(Establishment.code == data['code']).first()
+            if exist:
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Code is already exist!'}), 200)
             establishment = Establishment()
             establishment.code = data['code']
             establishment.block = data['block']
@@ -172,7 +195,23 @@ def update(id):
             if establishment is None:
                 return make_response(
                     jsonify({'message': 'Invalid Establishment ID'}), 400)
-            establishment.code = data['code']
+                
+            if data['block'] is None or data['block'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Block is required.'}), 200)
+                
+            if data['address'] is None or data['address'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Address is required.'}), 200)
+                
+            if data['type'] is None or data['type'] == "":
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'Type is required.'}), 200)
+                
+            if data['residents'] is None or not data['residents']:
+                return make_response(
+                    jsonify({'status': 'error', 'message': 'No Resident Info.'}), 200)
+            # establishment.code = data['code']
             establishment.block = data['block']
             establishment.address = data['address']
             establishment.type = data['type']
