@@ -7,16 +7,35 @@ def index():
     filter = request.args.get("filter", False)
     result = []
     try:
-        establishments = db.session.query(Establishment).all()
+        query = f"""
+            SELECT 
+                a.id,
+                a.code,
+                a.block,
+                a.address,
+                a.type,
+                (SELECT COUNT(t1.id) FROM resident t1 WHERE t1.establishment_id = a.id) as no_of_resident
+            FROM
+                establishment a"""
+        if filter:
+            query += f"""
+             WHERE
+                (
+                    a.code LIKE '%{filter}%' OR
+                    a.address LIKE '%{filter}%' OR
+                    a.type LIKE '%{filter}%'
+                ) """
+        establishments = db.session.execute(text(query))
         for e in establishments:
+            coordinates = db.session.query(Coordinates).filter_by(establishment_id = e.id)
             result.append({
                 "id": e.id,
                 "code": e.code,
                 "block": e.block,
                 "address": e.address,
                 "type": e.type,
-                "no_of_resident": len(e.resident),
-                "coordinates": [{"x": c.x, "y": c.y} for c in e.coordinates]
+                "no_of_resident": e.no_of_resident,
+                "coordinates": [{"x": c.x, "y": c.y} for c in coordinates]
             })
         return result
     except Exception as e:
