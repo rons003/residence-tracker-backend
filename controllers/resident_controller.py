@@ -124,23 +124,24 @@ def create():
             establishment.type = data['type']
             residents = []
             rows = data['residents']
-            
+
             for row in rows:
-                birth_date = datetime.datetime.strptime(row['birth_date'], "%d-%m-%Y").date()
+                birth_date = datetime.datetime.strptime(
+                    row['birth_date'], "%d-%m-%Y").date()
                 resident = Resident()
                 resident.first_name = row['first_name']
                 resident.middle_name = row['middle_name']
                 resident.last_name = row['last_name'],
                 resident.occupation = row['occupation']
                 resident.present_address = row['present_address']
-                resident.age = row['age']
+                # resident.age = row['age']
                 resident.sex = row['gender'],
                 resident.nationality = row['nationality']
                 resident.civil_status = row['civil_status']
                 resident.birth_date = birth_date
                 resident.contact_no = row['contact_no']
                 resident.emergency_name = row['emergency_name']
-                resident.emergency_adress = row['emergency_address']
+                resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
                 residents.append(resident)
             establishment.resident = residents
@@ -176,16 +177,17 @@ def update(id):
             establishment.address = data['address']
             establishment.type = data['type']
             residents = []
-            rows = data['residents']    
+            rows = data['residents']
             for row in rows:
-                birth_date = datetime.datetime.strptime(row['birth_date'], "%d-%m-%Y").date()
+                birth_date = datetime.datetime.strptime(
+                    row['birth_date'], "%d-%m-%Y").date()
                 resident = Resident()
                 resident.first_name = row['first_name']
                 resident.middle_name = row['middle_name']
                 resident.last_name = row['last_name'],
                 resident.occupation = row['occupation']
                 resident.present_address = row['present_address']
-                resident.age = row['age']
+                # resident.age = row['age']
                 resident.sex = row['gender'],
                 resident.nationality = row['nationality']
                 resident.civil_status = row['civil_status']

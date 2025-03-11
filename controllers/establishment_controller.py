@@ -54,3 +54,21 @@ def store_coordinates():
             print(str(e))
             db.session.rollback()
             return make_response(jsonify({'status': 'error', 'message': e}), 500)
+        
+        
+def delete(id):
+    if request.method == 'DELETE':
+        try:
+            establishment = db.session.query(
+                Establishment).filter_by(id=id).first()
+            if establishment is None:
+                return make_response(
+                    jsonify({'message': 'Invalid Establishment ID'}), 400)
+            db.session.delete(establishment)
+            db.session.commit()
+            return make_response(
+                jsonify({'status': 'success', 'message': 'Establishment Deleted!'}), 200)
+        except Exception as e:
+            print(str(e))
+            db.session.rollback()
+            return make_response(jsonify({'status': 'success', 'message': e}), 500)
