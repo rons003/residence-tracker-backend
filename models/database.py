@@ -35,6 +35,7 @@ class Resident(db.Model):
     emergency_name = db.Column(db.String(100))
     emergency_address = db.Column(db.String(100))
     emergency_contact_no = db.Column(db.String(15))
+    info_filename = db.Column(db.String(100))
 
 
 class EstablishmentImage(db.Model):

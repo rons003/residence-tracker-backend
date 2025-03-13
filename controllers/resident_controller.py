@@ -75,6 +75,9 @@ def show(id):
                 jsonify({'message': 'Invalid Establishment ID'}), 400)
         residents = []
         for resident in establishment.resident:
+            with open("image_attachments/" + resident.info_filename, "rb") as image_file:
+                base64_string = base64.b64encode(image_file.read())
+                file_string = base64_string.decode('ascii')
             residents.append({
                 "id": resident.id,
                 "first_name": resident.first_name,
@@ -90,7 +93,8 @@ def show(id):
                 "contact_no": resident.contact_no,
                 "emergency_address": resident.emergency_address,
                 "emergency_name": resident.emergency_name,
-                "emergency_contact_no": resident.emergency_contact_no
+                "emergency_contact_no": resident.emergency_contact_no,
+                "attachment": file_string
             })
 
         establishment_image = db.session.query(
@@ -170,6 +174,9 @@ def create():
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
+                file = row['files']
+                resident.info_filename = file['name']
+                convert_and_save(file['base64'], file['name'])
                 residents.append(resident)
             establishment.resident = residents
             filesnames = []
@@ -239,6 +246,9 @@ def update(id):
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
+                file = row['files']
+                resident.info_filename = file['name']
+                convert_and_save(file['base64'], file['name'])
                 residents.append(resident)
             establishment.resident = residents
             filesnames = []
