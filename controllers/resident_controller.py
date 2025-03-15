@@ -58,7 +58,8 @@ def index():
                 "address": resident.address,
                 "type": resident.type,
                 "coordinates": [{"x": c.x, "y": c.y} for c in coordinates],
-                "image": encoded_string
+                "image": encoded_string,
+                "id_no": resident.id_no
             })
     except Exception as e:
         print(str(e))
@@ -96,7 +97,8 @@ def show(id):
                 "emergency_address": resident.emergency_address,
                 "emergency_name": resident.emergency_name,
                 "emergency_contact_no": resident.emergency_contact_no,
-                "attachment": file_string
+                "attachment": file_string,
+                "id_no": resident.id_no
             })
 
         establishment_image = db.session.query(
@@ -176,9 +178,11 @@ def create():
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
-                file = row['files']
-                resident.info_filename = file['name']
-                convert_and_save(file['base64'], file['name'])
+                resident.id_no = row['id_no']
+                if bool(row["files"]):
+                    file = row['files']
+                    resident.info_filename = file['name']
+                    convert_and_save(file['base64'], file['name'])
                 residents.append(resident)
             establishment.resident = residents
             filesnames = []
@@ -248,6 +252,7 @@ def update(id):
                 resident.emergency_name = row['emergency_name']
                 resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
+                resident.id_no = row['id_no']
                 if bool(row["files"]):
                     file = row['files']
                     resident.info_filename = file['name']
