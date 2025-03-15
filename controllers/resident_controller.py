@@ -253,10 +253,12 @@ def update(id):
                 resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
                 resident.id_no = row['id_no']
-                if bool(row["files"]):
-                    file = row['files']
-                    resident.info_filename = file['name']
-                    convert_and_save(file['base64'], file['name'])
+                
+                if "files" in row:
+                    if bool(row["files"]):
+                        file = row['files']
+                        resident.info_filename = file['name']
+                        convert_and_save(file['base64'], file['name'])
                 residents.append(resident)
             establishment.resident = residents
             filesnames = []
