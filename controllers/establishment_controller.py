@@ -16,15 +16,19 @@ def index():
                 a.type,
                 (SELECT COUNT(t1.id) FROM resident t1 WHERE t1.establishment_id = a.id) as no_of_resident
             FROM
-                establishment a"""
+                establishment a
+            INNER JOIN
+				resident b
+			ON
+				b.establishment_id = a.id"""
         if filter:
             query += f"""
              WHERE
                 (
-                    a.code LIKE '%{filter}%' OR
-                    a.address LIKE '%{filter}%' OR
-                    a.type LIKE '%{filter}%'
+                    b.first_name LIKE '%{filter}%' OR
+                    b.last_name LIKE '%{filter}%' 
                 ) """
+        query += " GROUP BY a.id"
         establishments = db.session.execute(text(query))
         for e in establishments:
             coordinates = db.session.query(Coordinates).filter_by(establishment_id = e.id)
