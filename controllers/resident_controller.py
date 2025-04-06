@@ -284,6 +284,51 @@ def update(id):
             print(str(e))
             db.session.rollback()
             return make_response(jsonify({'status': 'success', 'message': e}), 500)
+        
+        
+def birth_date_alert():
+    result = []
+    try:
+        sql = f"""
+            SELECT 
+                a.id AS resident_id, a.*, b.*
+            FROM
+                resident a
+                    INNER JOIN
+                establishment b ON b.id = a.establishment_id
+            WHERE
+                (MONTH(birth_date) = MONTH(CURDATE())
+                    AND DAY(birth_date) <= DAY(DATE_ADD(CURDATE(), INTERVAL 3 DAY))) """
+        residents = db.session.execute(text(sql)).all()
+
+        for resident in residents:
+            
+            result.append({
+                "id": resident.resident_id,
+                "establishment_id": resident.establishment_id,
+                "first_name": resident.first_name,
+                "middle_name": resident.middle_name,
+                "last_name": resident.last_name,
+                "occupation": resident.occupation,
+                "present_address": resident.present_address,
+                "age": resident.age,
+                "sex": resident.sex,
+                "nationality": resident.nationality,
+                "civil_status": resident.civil_status,
+                "birth_date": resident.birth_date.strftime("%B %d"),
+                "contact_no": resident.contact_no,
+                "emergency_address": resident.emergency_address,
+                "emergency_name": resident.emergency_name,
+                "emergency_contact_no": resident.emergency_contact_no,
+                "code": resident.code,
+                "block": resident.block,
+                "address": resident.address,
+                "type": resident.type,
+                "id_no": resident.id_no
+            })
+    except Exception as e:
+        print(str(e))
+    return make_response(jsonify(result), 200)
 
 
 def convert_and_save(b64_string, name):
