@@ -77,10 +77,13 @@ def show(id):
         residents = []
         for resident in establishment.resident:
             file_string = ""
+            files = {}
             if resident.info_filename is not None and resident.info_filename != "":
                 with open("image_attachments/" + resident.info_filename, "rb") as image_file:
                     base64_string = base64.b64encode(image_file.read())
                     file_string = base64_string.decode('ascii')
+                    files["name"] = resident.info_filename
+                    files["base64"] = base64_string.decode('ascii')
             residents.append({
                 "id": resident.id,
                 "first_name": resident.first_name,
@@ -98,7 +101,9 @@ def show(id):
                 "emergency_name": resident.emergency_name,
                 "emergency_contact_no": resident.emergency_contact_no,
                 "attachment": file_string,
-                "id_no": resident.id_no
+                "id_no": resident.id_no,
+                "info_filename": resident.info_filename,
+                "files": files
             })
 
         establishment_image = db.session.query(
@@ -168,7 +173,7 @@ def create():
                 resident.middle_name = row['middle_name']
                 resident.last_name = row['last_name'],
                 resident.occupation = row['occupation']
-                resident.present_address = row['present_address']
+                resident.present_address = data['address']
                 # resident.age = row['age']
                 resident.sex = row['gender'],
                 resident.nationality = row['nationality']
@@ -242,7 +247,7 @@ def update(id):
                 resident.middle_name = row['middle_name']
                 resident.last_name = row['last_name'],
                 resident.occupation = row['occupation']
-                resident.present_address = row['present_address']
+                resident.present_address = data['address']
                 # resident.age = row['age']
                 resident.sex = row['gender'],
                 resident.nationality = row['nationality']
