@@ -8,6 +8,7 @@ from models.database import Coordinates, EstablishmentImage, db, Establishment, 
 
 def index():
     filter = request.args.get("filter", False)
+    block = request.args.get("block", 1)
     result = []
     try:
         sql = f"""
@@ -20,10 +21,11 @@ def index():
             INNER JOIN
                 establishment b
             ON
-                b.id = a.establishment_id"""
+                b.id = a.establishment_id
+            WHERE b.block = {block} """
 
         if filter:
-            sql += f""" WHERE (a.first_name LIKE '%{filter}%' OR a.last_name LIKE '%{filter}%')"""
+            sql += f""" AND (a.first_name LIKE '%{filter}%' OR a.last_name LIKE '%{filter}%')"""
         residents = db.session.execute(text(sql)).all()
 
         for resident in residents:
@@ -136,24 +138,25 @@ def create():
             if data['code'] is None or data['code'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Code is required.'}), 200)
-                
+
             if data['block'] is None or data['block'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Block is required.'}), 200)
-                
+
             if data['address'] is None or data['address'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Address is required.'}), 200)
-                
+
             if data['type'] is None or data['type'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Type is required.'}), 200)
-                
+
             if data['residents'] is None or not data['residents']:
                 return make_response(
                     jsonify({'status': 'error', 'message': 'No Resident Info.'}), 200)
-            
-            exist = db.session.query(Establishment.code).filter(Establishment.code == data['code']).first()
+
+            exist = db.session.query(Establishment.code).filter(
+                Establishment.code == data['code']).first()
             if exist:
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Code is already exist!'}), 200)
@@ -217,19 +220,19 @@ def update(id):
             if establishment is None:
                 return make_response(
                     jsonify({'message': 'Invalid Establishment ID'}), 400)
-                
+
             if data['block'] is None or data['block'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Block is required.'}), 200)
-                
+
             if data['address'] is None or data['address'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Address is required.'}), 200)
-                
+
             if data['type'] is None or data['type'] == "":
                 return make_response(
                     jsonify({'status': 'error', 'message': 'Type is required.'}), 200)
-                
+
             if data['residents'] is None or not data['residents']:
                 return make_response(
                     jsonify({'status': 'error', 'message': 'No Resident Info.'}), 200)
@@ -258,7 +261,7 @@ def update(id):
                 resident.emergency_address = row['emergency_address']
                 resident.emergency_contact_no = row['emergency_contact_no']
                 resident.id_no = row['id_no']
-                
+
                 if "files" in row:
                     if bool(row["files"]):
                         file = row['files']

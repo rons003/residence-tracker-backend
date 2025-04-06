@@ -5,6 +5,7 @@ from models.database import db, Establishment, Coordinates
 
 def index():
     filter = request.args.get("filter", False)
+    block = request.args.get("block", 1)
     result = []
     try:
         query = f"""
@@ -20,10 +21,11 @@ def index():
             INNER JOIN
 				resident b
 			ON
-				b.establishment_id = a.id"""
+				b.establishment_id = a.id 
+            WHERE a.block = {block} """
         if filter:
             query += f"""
-             WHERE
+              AND 
                 (
                     b.first_name LIKE '%{filter}%' OR
                     b.last_name LIKE '%{filter}%' 
