@@ -315,6 +315,7 @@ def birth_date_alert():
                 "sex": resident.sex,
                 "nationality": resident.nationality,
                 "civil_status": resident.civil_status,
+                "age": calculate_age(resident.birth_date),
                 "birth_date": resident.birth_date.strftime("%B %d"),
                 "contact_no": resident.contact_no,
                 "emergency_address": resident.emergency_address,
@@ -329,6 +330,10 @@ def birth_date_alert():
     except Exception as e:
         print(str(e))
     return make_response(jsonify(result), 200)
+
+def calculate_age(born):
+    today = datetime.date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 
 def convert_and_save(b64_string, name):
