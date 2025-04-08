@@ -265,8 +265,9 @@ def update(id):
                 if "files" in row:
                     if bool(row["files"]):
                         file = row['files']
-                        resident.info_filename = file['name']
-                        convert_and_save(file['base64'], file['name'])
+                        if file['base64'] != "":
+                            resident.info_filename = file['name']
+                            convert_and_save(file['base64'], file['name'])
                 residents.append(resident)
             establishment.resident = residents
             filesnames = []
@@ -284,8 +285,8 @@ def update(id):
             print(str(e))
             db.session.rollback()
             return make_response(jsonify({'status': 'success', 'message': e}), 500)
-        
-        
+
+
 def birth_date_alert():
     result = []
     try:
@@ -302,7 +303,7 @@ def birth_date_alert():
         residents = db.session.execute(text(sql)).all()
 
         for resident in residents:
-            
+
             result.append({
                 "id": resident.resident_id,
                 "establishment_id": resident.establishment_id,
@@ -330,6 +331,7 @@ def birth_date_alert():
     except Exception as e:
         print(str(e))
     return make_response(jsonify(result), 200)
+
 
 def calculate_age(born):
     today = datetime.date.today()
